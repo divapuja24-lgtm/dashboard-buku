@@ -8,6 +8,7 @@ import altair as alt
 import numpy as np
 import pandas as pd
 import streamlit as st
+from statistik import render as render_statistik
 
 st.set_page_config(page_title='Rak Buku: rekomendasi item-based CF', page_icon='📚', layout='wide')
 
@@ -43,6 +44,11 @@ st.markdown('''<style>
 .meter i {display: block; height: 100%; background: #0E7C86;}
 .bm {font-size: .72rem; color: #4B6470; margin-top: 4px;}
 @media (max-width: 800px) {.fan {display: none;} .hero {padding: 0 20px;}}
+.stars {color: #B7791F; font-size: .78rem; font-weight: 600; margin-top: 4px;}
+.why {font-size: .72rem; line-height: 1.3; color: #17313B; background: #E1EAEC; border-radius: 3px; padding: 5px 7px; margin-top: 7px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;}
+.cv {transition: transform .15s ease;}
+.book:hover .cv {transform: translateY(-4px);}
+.detail .dt {font-family: 'Libre Caslon Text', serif; font-size: 1.5rem; line-height: 1.25; color: #17313B; margin-bottom: 4px;}
 </style>''', unsafe_allow_html=True)
 
 
@@ -100,8 +106,10 @@ def shelf(idx, metas):
     for r, (j, meta) in enumerate(zip(idx, metas), 1):
         judul = escape(str(items.at[j, 'Book-Title']))
         penulis = escape(str(items.at[j, 'Book-Author']))
+        rata = float(items.at[j, 'mean_rating'])
         out.append('<div class="book"><div class="wrap">' + cover_html(j) + f'<span class="rk">{r}</span></div>'
-                   + f'<div class="bt">{judul}</div><div class="ba">{penulis}</div>' + meta + '</div>')
+                   + f'<div class="bt">{judul}</div><div class="ba">{penulis}</div>'
+                   + f'<div class="stars">★ {rata:.1f}</div>' + meta + '</div>')
     out.append('</div>')
     st.markdown(''.join(out), unsafe_allow_html=True)
 
@@ -124,14 +132,14 @@ st.markdown(
     unsafe_allow_html=True)
 
 # ---------- Sidebar ----------
-st.sidebar.header('Parameter model')
-lam_rank = st.sidebar.slider('λ shrinkage (ranking)', 0, 100, 50, 5)
-lam_pred = st.sidebar.slider('λ shrinkage (prediksi rating)', 0, 100, 10, 5)
-k = st.sidebar.slider('k tetangga terdekat', 5, 50, 20, 5)
-gamma = st.sidebar.slider('γ peredam', 0.0, 2.0, 0.5, 0.25)
+box = st.sidebar.expander('Pengaturan model (lanjutan)')
+lam_rank = box.slider('λ shrinkage (ranking)', 0, 100, 50, 5)
+lam_pred = box.slider('λ shrinkage (prediksi rating)', 0, 100, 10, 5)
+k = box.slider('k tetangga terdekat', 5, 50, 20, 5)
+gamma = box.slider('γ peredam', 0.0, 2.0, 0.5, 0.25)
 S_rank, S_pred = shrunk(lam_rank), shrunk(lam_pred)
 
-tab1, tab2, tab3, tab4 = st.tabs(['Ringkasan data', 'Buku mirip', 'Rekomendasi user', 'Evaluasi'])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Ringkasan data', 'Buku mirip', 'Rekomendasi user', 'Evaluasi', 'Statistik', 'Tentang model'])
 
 # ---------- Tab 1: ringkasan ----------
 with tab1:
@@ -160,7 +168,34 @@ with tab1:
 # ---------- Tab 2: buku mirip ----------
 with tab2:
     st.subheader('Pilih sebuah buku, lihat buku yang mirip')
-    i = st.selectbox('Pilih buku', range(n), format_func=lambda x: LABELS[x])
+    if st.button('Acak buku'):
+        st.session_state['buku_i'] = int(np.random.randint(n))
+    i = st.selectbox('Pilih buku', range(n), format_func=lambda x: LABELS[x], key='buku_i')
+
+    def _t(x):
+        return '' if pd.isna(x) else escape(str(x))
+    try:
+        tahun = str(int(float(items.at[i, 'Year-Of-Publication']))) + ', '
+    except Exception:
+        tahun = ''
+    kiri, kanan = st.columns([1, 3])
+    with kiri:
+        st.markdown('<div class="wrap">' + cover_html(i) + '</div>', unsafe_allow_html=True)
+    with kanan:
+        st.markdown(
+            f'<div class="detail"><div class="dt">{_t(items.at[i, "Book-Title"])}</div>'
+            f'<div class="ba">{_t(items.at[i, "Book-Author"])}</div>'
+            f'<div class="stars">★ {float(items.at[i, "mean_rating"]):.1f}</div>'
+            f'<div class="bm">{tahun}{_t(items.at[i, "Publisher"])}, dirating {int(items.at[i, "n_rating"])} pembaca</div></div>',
+            unsafe_allow_html=True)
+        rb = (ratings.loc[ratings['i'] == i, 'Book-Rating'].round().astype(int)
+              .value_counts().reindex(range(1, 11), fill_value=0)
+              .rename_axis('Rating').reset_index(name='Pembaca'))
+        st.altair_chart(
+            alt.Chart(rb).mark_bar(color=TEAL)
+            .encode(x=alt.X('Rating:O', title='Nilai rating'), y=alt.Y('Pembaca:Q', title='Pembaca'),
+                    tooltip=['Rating', 'Pembaca'])
+            .properties(height=120), use_container_width=True)
     N = st.slider('Jumlah rekomendasi', 3, 20, 5, key='n_sim')
     min_co = st.slider('Minimal pembaca yang me-rating kedua buku', 1, 20, 3)
 
@@ -216,7 +251,21 @@ with tab3:
             adj = (sj[pos] * ej[pos]).sum() / (sj[pos].sum() + gamma) if pos.any() else 0.0
             preds.append(float(np.clip(MU + BU[u] + BI[j] + adj, 1, 10)))
         smax = float(score[top].max())
-        shelf(top, [meter(float(score[j]), smax, f'prediksi rating {p:.1f}') for j, p in zip(top, preds)])
+        def alasan(j):
+            sj = S_rank[j, items_u]
+            o = int(np.argmax(sj))
+            if sj[o] <= 0:
+                return ''
+            t = escape(str(items.at[items_u[o], 'Book-Title']))
+            return f"<div class='why'>karena kamu me-rating <b>{t}</b> ({r_u[o]:.0f})</div>"
+        shelf(top, [meter(float(score[j]), smax, f'prediksi rating {p:.1f}') + alasan(j) for j, p in zip(top, preds)])
+        hasil = pd.DataFrame({'Peringkat': range(1, len(top) + 1),
+                              'Judul': [items.at[j, 'Book-Title'] for j in top],
+                              'Penulis': [items.at[j, 'Book-Author'] for j in top],
+                              'Skor kemiripan': [round(float(score[j]), 3) for j in top],
+                              'Prediksi rating': [round(p, 2) for p in preds]})
+        st.download_button('Unduh rekomendasi (CSV)', hasil.to_csv(index=False).encode('utf-8'),
+                           file_name=f'rekomendasi_user_{users.at[u, "User-ID"]}.csv', mime='text/csv')
         with st.expander('Lihat angka lengkap'):
             st.dataframe(pd.DataFrame({'Judul': [LABELS[j] for j in top],
                                        'Skor kemiripan': [round(float(score[j]), 3) for j in top],
@@ -240,3 +289,28 @@ with tab4:
     st.latex(r'\mathrm{sim}^{*}(i,j)=\frac{|U_{ij}|}{|U_{ij}|+\lambda}\,\mathrm{sim}(i,j)')
     st.latex(r'\hat r_{ui}=b_{ui}+\frac{\sum_{j\in N_k(i;u)}\mathrm{sim}^{*}(i,j)\,(r_{uj}-b_{uj})}'
              r'{\sum_{j\in N_k(i;u)}|\mathrm{sim}^{*}(i,j)|+\gamma},\qquad b_{ui}=\mu+b_u+b_i')
+
+# ---------- Tab 5: statistik ----------
+with tab5:
+    render_statistik(ART)
+
+# ---------- Tab 6: tentang model ----------
+with tab6:
+    st.subheader('Cara kerja dalam tiga langkah')
+    st.markdown('**1. Ukur kemiripan antar buku.** Dua buku dianggap mirip kalau pembaca yang sama menilainya sama-sama di atas atau di bawah kebiasaan mereka. Rating tiap pembaca digeser dulu terhadap rata-ratanya sendiri, lalu kemiripan dihitung dengan adjusted cosine.')
+    st.latex(r'\mathrm{sim}(i,j)=\frac{\sum_{u\in U_{ij}}(r_{ui}-\bar r_u)(r_{uj}-\bar r_u)}{\sqrt{\sum_{u\in U_{ij}}(r_{ui}-\bar r_u)^2}\sqrt{\sum_{u\in U_{ij}}(r_{uj}-\bar r_u)^2}}')
+    st.markdown('**2. Kurangi kemiripan yang rapuh.** Pasangan buku yang hanya dirating oleh sedikit pembaca yang sama bisa tampak sangat mirip karena kebetulan, jadi nilainya disusutkan.')
+    st.latex(r'\mathrm{sim}^{*}(i,j)=\frac{|U_{ij}|}{|U_{ij}|+\lambda}\,\mathrm{sim}(i,j)')
+    st.markdown('**3. Susun rekomendasi.** Skor sebuah buku untuk seorang pembaca adalah jumlah kemiripannya dengan buku yang sudah dirating pembaca itu. Prediksi rating memakai baseline bias, lalu dikoreksi oleh tetangga terdekat.')
+    st.latex(r'\mathrm{score}(u,i)=\sum_{j\in I_u}\max\big(\mathrm{sim}^{*}(i,j),0\big),\qquad \hat r_{ui}=b_{ui}+\frac{\sum_{j\in N_k(i;u)}\mathrm{sim}^{*}(i,j)\,(r_{uj}-b_{uj})}{\sum_{j\in N_k(i;u)}|\mathrm{sim}^{*}(i,j)|+\gamma}')
+
+    st.subheader('Data yang dipakai')
+    st.markdown(f'Dataset Book-Crossing yang sudah dibersihkan, lalu difilter: pembaca dengan minimal 3 rating dan buku dengan minimal 10 rating. Hasilnya {m:,} pembaca, {n:,} buku, dan {len(ratings):,} rating, dengan sparsity {1 - len(ratings) / (m * n):.2%}.')
+
+    st.subheader('Keterbatasan')
+    st.markdown(
+        '- Data sangat jarang terisi. Median pembaca hanya punya beberapa rating, jadi banyak pembaca tidak punya cukup sinyal.\n'
+        '- Sekitar 28% pasangan uji tidak punya buku mirip sama sekali, sehingga tidak mungkin masuk daftar rekomendasi.\n'
+        '- Hiperparameter dipilih memakai data uji yang sama dengan yang dilaporkan, jadi hasil evaluasi cenderung sedikit optimistis.\n'
+        '- Model hanya memakai pola rating. Isi buku, usia, dan lokasi pembaca tidak dipakai.\n'
+        '- Cover diambil dari Open Library dan tidak tersedia untuk semua buku. Buku tanpa cover tampil sebagai sampul bertipografi.')

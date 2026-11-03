@@ -1,0 +1,15 @@
+tabel,kolom,missing_mentah,missing_cleaned
+ratings,User-ID,,0
+ratings,ISBN,,0
+ratings,Book-Rating,1048575.0,0
+books,ISBN,,0
+books,Book-Title,,0
+books,Book-Author,,2
+books,Year-Of-Publication,,0
+books,Publisher,,2
+books,Image-URL-S,,0
+books,Image-URL-M,,0
+books,Image-URL-L,,0
+users,User-ID,,0
+users,Location,,1
+users,Age,,111974

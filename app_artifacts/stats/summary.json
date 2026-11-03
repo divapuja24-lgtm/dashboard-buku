@@ -1,0 +1,56 @@
+{
+  "raw": {
+    "ratings": 1048575,
+    "books": 271379,
+    "users": 276271,
+    "implicit_0": 0,
+    "explicit": 0
+  },
+  "cleaned": {
+    "ratings": 397245,
+    "books": 250012,
+    "users": 278700,
+    "rating_min": 1.0,
+    "rating_max": 10.0,
+    "unique_users_in_ratings": 70642,
+    "unique_books_in_ratings": 175556
+  },
+  "rating": {
+    "n": 397245,
+    "mean": 7.601852760890634,
+    "median": 8.0,
+    "std": 1.8412752976025557,
+    "skew": -0.6530697400151091,
+    "kurtosis_excess": 0.12902981645737555,
+    "q1": 7.0,
+    "q3": 9.0
+  },
+  "aktivitas_user": {
+    "mean": 5.623354378415107,
+    "median": 1.0,
+    "max": 8524,
+    "p90": 9.0
+  },
+  "popularitas_buku": {
+    "mean": 2.2627822461208957,
+    "median": 1.0,
+    "max": 635,
+    "p90": 4.0
+  },
+  "usia": {
+    "n_terisi": 166726,
+    "mean": 34.75499922027758,
+    "median": 32.0,
+    "std": 13.632166323200531
+  },
+  "uji": {
+    "spearman_rho": -0.0015771434872475464,
+    "spearman_p": 0.5087345430854471,
+    "spearman_n": 175556,
+    "kruskal_H": 616.6532856740201,
+    "kruskal_p": 5.9600457250180606e-130,
+    "kruskal_n": 275518,
+    "kruskal_k": 7,
+    "epsilon2": 0.002238167828751112
+  }
+}

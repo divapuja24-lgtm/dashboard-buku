@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from statistik import render as render_statistik
-from author import show_author, show_contributors
+from author import show_author
 
 st.set_page_config(
     page_title='Rak Buku: rekomendasi item-based CF',
@@ -735,4 +735,4 @@ with tab6:
         '- Model hanya memakai pola rating. Isi buku, usia, dan lokasi pembaca tidak dipakai.\n'
         '- Cover diambil dari Open Library dan tidak tersedia untuk semua buku. Buku tanpa cover tampil sebagai sampul bertipografi.')
 
-show_contributors()
+

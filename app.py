@@ -552,65 +552,11 @@ st.markdown(
     unsafe_allow_html=True)
 
 # ---------- Sidebar ----------
-
-st.sidebar.markdown("## RAK BUKU")
-st.sidebar.caption("BOOK RECOMMENDATION SYSTEM")
-st.sidebar.markdown("---")
-
-# Informasi dataset
-st.sidebar.markdown("**INFORMASI DATASET**")
-
-col1, col2 = st.sidebar.columns(2)
-
-with col1:
-    st.metric("Pembaca", f"{m:,}")
-
-with col2:
-    st.metric("Buku", f"{n:,}")
-
-st.sidebar.metric("Total Rating", f"{len(ratings):,}")
-
-sparsity = 1 - len(ratings) / (m * n)
-st.sidebar.caption(f"Sparsity dataset: {sparsity:.2%}")
-
-st.sidebar.markdown("---")
-
-# Informasi metode
-st.sidebar.markdown("**METODE REKOMENDASI**")
-
-st.sidebar.markdown(
-    "Item-Based Collaborative Filtering"
-)
-
-st.sidebar.caption(
-    "Rekomendasi buku berdasarkan kemiripan pola rating antar buku."
-)
-
-st.sidebar.markdown(
-    "**Adjusted Cosine Similarity + Shrinkage**"
-)
-
-st.sidebar.markdown("---")
-
-# Pengaturan model lanjutan
-box = st.sidebar.expander("Pengaturan model (lanjutan)")
-
-lam_rank = box.slider(
-    "λ shrinkage (ranking)", 0, 100, 50, 5
-)
-
-lam_pred = box.slider(
-    "λ shrinkage (prediksi rating)", 0, 100, 10, 5
-)
-
-k = box.slider(
-    "k tetangga terdekat", 5, 50, 20, 5
-)
-
-gamma = box.slider(
-    "γ peredam", 0.0, 2.0, 0.5, 0.25
-)
-
+box = st.sidebar.expander('Pengaturan model (lanjutan)')
+lam_rank = box.slider('λ shrinkage (ranking)', 0, 100, 50, 5)
+lam_pred = box.slider('λ shrinkage (prediksi rating)', 0, 100, 10, 5)
+k = box.slider('k tetangga terdekat', 5, 50, 20, 5)
+gamma = box.slider('γ peredam', 0.0, 2.0, 0.5, 0.25)
 S_rank, S_pred = shrunk(lam_rank), shrunk(lam_pred)
 # ---------- Tab 1: ringkasan ----------
 with tab1:

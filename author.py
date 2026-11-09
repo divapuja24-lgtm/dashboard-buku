@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 def show_author():
@@ -7,7 +6,7 @@ def show_author():
     .author-card {
         position: fixed;
         bottom: 15px;
-        right: 20px;
+        left: 20px;
         z-index: 9999;
         background: #172438;
         color: #E8EEF7;
@@ -26,6 +25,16 @@ def show_author():
     </style>
 
     <div class="author-card">
-        Developed by <span class="author-name">Diva Puja Prasetiyawati</span>
+        <div>
+            Developed by
+            <span class="author-name">Group 9</span>
+        </div>
+
+        <div style="margin-top: 6px; font-size: 11px;">
+            Project Contributors:
+            <br>Diva Puja Prasetyawati
+            <br>Aulia Vonna
+            <br>Rohviska Novilita Marfilyamin
+        </div>
     </div>
     """, unsafe_allow_html=True)

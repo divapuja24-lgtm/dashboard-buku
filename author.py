@@ -1,8 +1,44 @@
 
+import streamlit as st
+
+
+def show_author():
+    st.html("""
+    <style>
+    .author-card {
+        position: fixed;
+        bottom: 15px;
+        left: 20px;
+        z-index: 9999;
+        background: #172438;
+        color: #E8EEF7;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid #35C6B4;
+        font-family: sans-serif;
+        font-size: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .author-name {
+        color: #35C6B4;
+        font-weight: bold;
+    }
+    </style>
+
+    <div class="author-card">
+        Developed by
+        <span class="author-name">Group 9</span>
+    </div>
+    """)
+
+
 def show_contributors():
     st.html("""
     <style>
     .contributors-section {
+        width: 100%;
+        box-sizing: border-box;
         margin: 35px auto 10px auto;
         padding: 20px 24px;
         background: #172438;
@@ -41,10 +77,11 @@ def show_contributors():
         color: #E8EEF7;
         font-size: 12px;
         line-height: 1.5;
+        min-height: 65px;
         display: flex;
         flex-direction: column;
+        align-items: center;
         justify-content: center;
-        min-height: 65px;
         overflow-wrap: anywhere;
     }
 
@@ -53,6 +90,7 @@ def show_contributors():
         font-size: 10px;
         font-weight: bold;
         margin-bottom: 5px;
+        letter-spacing: 1px;
     }
 
     .contributor-name {
@@ -63,7 +101,8 @@ def show_contributors():
         margin-top: 16px;
         color: #9CAFC5;
         font-size: 10px;
-        letter-spacing: 1.5px;
+        letter-spacing: 1.2px;
+        line-height: 1.6;
     }
 
     @media (max-width: 600px) {
@@ -74,37 +113,50 @@ def show_contributors():
     </style>
 
     <div class="contributors-section">
-        <div class="contributors-title">PROJECT TEAM</div>
+
+        <div class="contributors-title">
+            PROJECT TEAM
+        </div>
 
         <div class="contributors-subtitle">
             Group 9
         </div>
 
         <div class="contributors-grid">
+
             <div class="contributor-card">
-                <div class="contributor-number">MEMBER 01</div>
+                <div class="contributor-number">
+                    MEMBER 01
+                </div>
                 <div class="contributor-name">
                     Diva Puja Prasetyawati
                 </div>
             </div>
 
             <div class="contributor-card">
-                <div class="contributor-number">MEMBER 02</div>
+                <div class="contributor-number">
+                    MEMBER 02
+                </div>
                 <div class="contributor-name">
                     Aulia Vonna
                 </div>
             </div>
 
             <div class="contributor-card">
-                <div class="contributor-number">MEMBER 03</div>
+                <div class="contributor-number">
+                    MEMBER 03
+                </div>
                 <div class="contributor-name">
                     Rohviska Novilita Marfilyamin
                 </div>
             </div>
+
         </div>
 
         <div class="contributors-footer">
-            STATISTICS · INSTITUT TEKNOLOGI SEPULUH NOPEMBER
+            DEPARTEMEN STATISTIKA<br>
+            INSTITUT TEKNOLOGI SEPULUH NOPEMBER
         </div>
+
     </div>
     """)

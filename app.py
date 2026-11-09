@@ -558,6 +558,9 @@ lam_pred = box.slider('λ shrinkage (prediksi rating)', 0, 100, 10, 5)
 k = box.slider('k tetangga terdekat', 5, 50, 20, 5)
 gamma = box.slider('γ peredam', 0.0, 2.0, 0.5, 0.25)
 S_rank, S_pred = shrunk(lam_rank), shrunk(lam_pred)
+
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Ringkasan data', 'Buku mirip', 'Rekomendasi user', 'Evaluasi', 'Statistik', 'Tentang model'])
+
 # ---------- Tab 1: ringkasan ----------
 with tab1:
     c1, c2, c3, c4 = st.columns(4)

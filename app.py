@@ -10,7 +10,12 @@ import pandas as pd
 import streamlit as st
 from statistik import render as render_statistik
 
-st.set_page_config(page_title='Rak Buku: rekomendasi item-based CF', page_icon='📚', layout='wide')
+st.set_page_config(
+    page_title='Rak Buku: rekomendasi item-based CF',
+    page_icon='📚',
+    layout='wide',
+    initial_sidebar_state='collapsed'
+)
 
 HERE = Path(__file__).parent
 COVERS = HERE / 'covers'
@@ -43,7 +48,67 @@ st.markdown('''<style>
 .meter {height: 5px; background: #CFDCE0; border-radius: 3px; margin-top: 8px; overflow: hidden;}
 .meter i {display: block; height: 100%; background: #0E7C86;}
 .bm {font-size: .72rem; color: #4B6470; margin-top: 4px;}
-@media (max-width: 800px) {.fan {display: none;} .hero {padding: 0 20px;}}
+/* Responsive untuk tampilan Hugging Face */
+@media (max-width: 1000px) {
+
+    .block-container {
+        width: 100%;
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .hero {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0 24px;
+        align-items: center;
+        gap: 0;
+    }
+
+    .hero-text {
+        flex: 1 1 100%;
+        min-width: 0;
+        padding: 28px 0;
+    }
+
+    .hero h1 {
+        font-size: clamp(1.55rem, 4vw, 2.2rem) !important;
+        line-height: 1.2 !important;
+        max-width: 100%;
+        word-break: normal;
+        overflow-wrap: normal;
+    }
+
+    .hero p {
+        max-width: 100%;
+    }
+
+    .fan {
+        display: none;
+    }
+}
+
+/* Responsive untuk layar kecil */
+@media (max-width: 600px) {
+
+    .hero {
+        padding: 0 16px;
+    }
+
+    .hero-text {
+        padding: 22px 0;
+    }
+
+    .hero h1 {
+        font-size: 1.55rem !important;
+    }
+
+    .block-container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
 .stars {color: #B7791F; font-size: .78rem; font-weight: 600; margin-top: 4px;}
 .why {font-size: .72rem; line-height: 1.3; color: #17313B; background: #E1EAEC; border-radius: 3px; padding: 5px 7px; margin-top: 7px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;}
 .cv {transition: transform .15s ease;}
